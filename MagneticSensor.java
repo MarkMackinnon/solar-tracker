@@ -7,11 +7,18 @@ public class MagneticSensor extends VRISensor {
 
 	private boolean on;
 	
-	public MagneticSensor(int portNumber, String label) {
-		super(portNumber, label);
-		VoltageRatioInput ms = (VoltageRatioInput) super.getPhidget();
-		
-		ms.addVoltageRatioChangeListener(new VoltageRatioInputVoltageRatioChangeListener() {
+	public MagneticSensor(int portNumber, String deviceName) {
+		super(portNumber, deviceName);
+	}
+	
+	public boolean getMagAligned() {
+		return on;
+	}
+	
+	@Override
+	protected void addVoltageRatioChangeListener() {
+		VoltageRatioInput phi = (VoltageRatioInput) super.phi;
+		phi.addVoltageRatioChangeListener(new VoltageRatioInputVoltageRatioChangeListener() {
 			public void onVoltageRatioChange(VoltageRatioInputVoltageRatioChangeEvent v) {
 				VRIValue = v.getVoltageRatio();
 				if (VRIValue > 0.8) {
@@ -23,8 +30,4 @@ public class MagneticSensor extends VRISensor {
 		});
 	}
 	
-	public boolean getMagAligned() {
-		return on;
-	}
-
 }

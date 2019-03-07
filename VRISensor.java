@@ -1,36 +1,40 @@
 package Phidgets;
 import com.phidget22.*;
 
-public class VRISensor {
+abstract class VRISensor extends VintDevice{
 
-	public VoltageRatioInput vriPhi;
-	String deviceName;
 	public double VRIValue;
 
-	public VRISensor(int portNumber, String label) {
+	protected VRISensor(int portNumber, String deviceName) {
+		super(deviceName);
 		try {
-			vriPhi = new VoltageRatioInput();
-			deviceName = label;
-			vriPhi.setHubPort(portNumber);
-			vriPhi.setIsHubPortDevice(true);
+			phi = new VoltageRatioInput();
+			phi.setHubPort(portNumber);
+			phi.setIsHubPortDevice(true);
 		}
 		catch (PhidgetException PhEx) {
-			System.out.println("Creating " + label);
+			System.out.println("Creating " + deviceName);
 			System.err.println(PhEx.getDescription());
 		}
-
-		vriPhi.addAttachListener(new AttachListener() {
+		
+		addAttachListener();
+		super.addDettachListener(phi);
+		super.addErrorListener(phi);
+		addVoltageRatioChangeListener();
+		setPhidget();
+	}
+	
+	protected void addAttachListener() {
+		VoltageRatioInput phi = (VoltageRatioInput) super.phi;
+		phi.addAttachListener(new AttachListener() {
 			public void onAttach(AttachEvent ae) {
 				try {
 					System.out.print(deviceName + " Attached @ ");
-					System.out.println("PC: " + vriPhi.getHubPort() + "/" + vriPhi.getChannel());
-					
+					System.out.println("PC:" + phi.getHubPort() + "/" + phi.getChannel());
 					if (VintHUB.demo) {
-						System.out.println("\tData Interval: " + vriPhi.getDataInterval() + "ms");
-						System.out.println("\tChange Trigger: " + vriPhi.getVoltageRatioChangeTrigger());
+						System.out.println("\tData Interval: " + phi.getDataInterval() + "ms");
+						System.out.println("\tChange Trigger: " + phi.getVoltageRatioChangeTrigger());
 					}
-					
-					VintHUB.AttachPhidget(vriPhi);
 				} 
 				catch (PhidgetException PhEx) {
 					PhidgetErrHand.DisplayError(PhEx, "Attaching " + deviceName);
@@ -38,51 +42,41 @@ public class VRISensor {
 				System.out.println(VintHUB.separator);			
 			}
 		});
-
-		vriPhi.addDetachListener(new DetachListener() {
-			public void onDetach(DetachEvent de) {
-				System.out.println(deviceName + " Dettached");
-				System.out.println(VintHUB.separator);
-			}
-		});
-
-		vriPhi.addErrorListener(new ErrorListener() {
-			public void onError(ErrorEvent ee) {
-				System.out.print(deviceName + " ");
-				System.err.println("Error: " + ee.getDescription());
-				System.out.println(VintHUB.separator);
-			}
-		});
-
-		vriPhi.addVoltageRatioChangeListener(new VoltageRatioInputVoltageRatioChangeListener() {
+	}
+	
+	protected void addVoltageRatioChangeListener() {
+		VoltageRatioInput phi = (VoltageRatioInput) super.phi;
+		phi.addVoltageRatioChangeListener(new VoltageRatioInputVoltageRatioChangeListener() {
 			public void onVoltageRatioChange(VoltageRatioInputVoltageRatioChangeEvent v) {
 				VRIValue = v.getVoltageRatio();
+				System.out.println(VRIValue);
 			}
 		});
 	}
-
-	public void setDataInterval(int di) {
+	
+	protected void setDataInterval(int di) {
+		VoltageRatioInput phi = (VoltageRatioInput) super.phi;
 		try {
-			vriPhi.setDataInterval(di);
-			System.out.println(deviceName + "\n\tData Interval set to: " + vriPhi.getDataInterval());
+			phi.setDataInterval(di);
+			System.out.println(deviceName + "\n\tData Interval set to: " + phi.getDataInterval());
 		} catch (PhidgetException PhEx) {
 			System.out.println(deviceName);
 			PhidgetErrHand.DisplayError(PhEx, "Setting Data Interval" );
 		} 
 	}
 
-	public void setVoltageRatioChangeTrigger(double vct) {
+	protected void setVoltageRatioChangeTrigger(double vct) {
+		VoltageRatioInput phi = (VoltageRatioInput) super.phi;
 		try {
-			vriPhi.setVoltageRatioChangeTrigger(vct);
-			System.out.println(deviceName + "\n\tVoltage Change Ratio set to: " + vriPhi.getVoltageRatioChangeTrigger());
+			phi.setVoltageRatioChangeTrigger(vct);
+			System.out.println(deviceName + "\n\tVoltage Change Ratio set to: " + phi.getVoltageRatioChangeTrigger());
 		} catch (PhidgetException PhEx) {
 			System.out.println(deviceName);
 			PhidgetErrHand.DisplayError(PhEx, "Setting Data Change Trigger");
 		} 
 	}
 
-	public Phidget getPhidget() {
-		return this.vriPhi;	
+	protected void setPhidget() {
+		super.phi = phi;
 	}
-
 }

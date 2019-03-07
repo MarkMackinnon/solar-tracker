@@ -1,36 +1,28 @@
 package Phidgets;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Vector;
 import com.phidget22.*;
 
 public class VintHUB {
 
 	static String separator;
 	static boolean demo;
-	
+
 	int HubDSN;
-	
-	Enumeration<Phidget> Phidgets = null; 
-	public static Vector<Phidget> PhV = new Vector<>();
-	
+
+	public static ArrayList<VintDevice> devices = new ArrayList<VintDevice>();
+
 	public VintHUB(int HubSN, boolean d, String s) {
 		this.HubDSN = HubSN;
 		demo = d;
 		separator = s;
-		PhV.clear();
+		devices.clear();
 	}
-	
-	public VintHUB(int HubSN) {
-		this.HubDSN = HubSN;
-		PhV.clear();
-	}
-	
+
 	public TurntableMotor createTurntableMotor(int portNumber, String label) throws PhidgetException {
 		return new TurntableMotor(portNumber, label);
 	}
-	
+
 	public MagneticSensor createMagneticSensor(int portNumber,  String label) throws PhidgetException {
 		return new MagneticSensor(portNumber, label);
 	}
@@ -39,76 +31,47 @@ public class VintHUB {
 		return new LUXSensor(portNumber, label);
 	}
 
-	public boolean PhidgetsAttached() {
-		ArrayList<Boolean> phidgetConList =  new ArrayList<Boolean>();
+	public boolean catchPhidgetsAttached() {
+		//boolean allAttached = false;
+		int loopCount = 0;
+		//int phidgetAttCount = phidgetCount;	//attached until proven otherwise
+		ArrayList<VintDevice> devicesNotAttached = new ArrayList<VintDevice>();
 
-		Phidgets = PhV.elements();
-		int i = 0;
-
-		while (Phidgets.hasMoreElements()) {
-			Phidget phi = (Phidget) Phidgets.nextElement();
-			try {
-				if(phi.getAttached()){
-					i--;
+		try {
+			do{
+				devicesNotAttached.clear();
+				for (VintDevice p : devices) {
+					if (!p.phi.getAttached()) {
+						devicesNotAttached.add(p);
+						Thread.sleep(300);
+					}
 				}
-			} catch (PhidgetException PhEx) {
-				System.err.println("Error getting Phidgets Attached to the VintHUB: " + HubDSN);
-				System.err.println(PhEx.getDescription());
-				return false;
-			}
-		}
-
-		System.out.println("PhidgetConList Length = " + phidgetConList.size());
-
-		if (i<0) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
-	public static void AttachPhidget(Phidget phi) {
-		PhV.add(phi);
-	}
-
-	public void OpenSetChannel(Phidget phi, int channel) {
-		try {
-			phi.setChannel(channel);
-			phi.open();	//hold channel open request on for attachment 
-			System.out.println("PC:" + phi.getHubPort() + "/" + + phi.getChannel() + "\t(OPEN)");
-			System.out.println(VintHUB.separator);
-		}
-		catch (PhidgetException PhEx) {
-			PhidgetErrHand.PrintOpenErrorMessage(PhEx, phi);
-		}
-		catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
-
-	public void CloseChannel(Phidget phi) {
-		try {
-			phi.close();
-			System.out.println("PC:" + phi.getHubPort() + "/" + + phi.getChannel() + "\t(CLOSED)");
-			System.out.println(VintHUB.separator);	
-		}
-		catch (PhidgetException PhEx) {
-			System.out.println("Failed to Closed");
-			System.out.println(VintHUB.separator);	
-			System.err.println(PhEx.getErrorCode());
-			System.err.println(PhEx.getDescription());
-		}
-		catch (Exception e) {
-			System.err.println(e.getMessage());
-		}
-	}
-
-	public boolean getAttached(Phidget phi, String phiName) {
-		try {
-			return phi.getAttached();
+				loopCount++;
+				if (loopCount == 5) {	break;	}
+			} while (devicesNotAttached.size() != 0);
 		} catch (PhidgetException PhEx) {
-			System.err.println("Getting boolean attached, for " + phiName + "\nReturned default; FALSE");
+			System.err.println("Error getting Phidgets attached to the VintHUB: " + HubDSN);
+			System.err.println(PhEx.getMessage());
+		} catch (InterruptedException IE) {
+			System.err.println(IE.getMessage());
+		}
+
+		if (devicesNotAttached.isEmpty()) {
+			System.out.println("All Phidgets attached");
+			System.out.println(separator);
+			return true;
+		} else {
+			if (demo) {
+				System.out.println("Phidgets created = " + devices.size());
+				System.out.println("Phidgets attached = " + (devices.size() - devicesNotAttached.size()));
+			}
+			for (VintDevice p : devicesNotAttached) {
+				
+				System.err.println(p.deviceName + " NOT ATTACHED");
+			}
+			System.out.println(separator);
 			return false;
 		}
+
 	}
 }

@@ -6,62 +6,67 @@ import com.phidget22.*;
  * Unit: Position	1 Full Rotation of turntable = 40441
  * 1 degree = 112.37 steps
  */
-public class StepperMotor {
+public class StepperMotor extends VintDevice{
 
-	public Stepper stpPhi;
-	public String deviceName;
+	//	protected static Stepper phi;
 	public double position;
 
-	public StepperMotor(int portNumber, String label) {
+	public StepperMotor(int portNumber, String deviceName) {
+		super(deviceName);
 		try {
-			stpPhi = new Stepper();
-			deviceName = label;
-			stpPhi.setHubPort(portNumber);
-			stpPhi.setIsHubPortDevice(false);
+			phi = new Stepper();
+			phi.setHubPort(portNumber);
+			phi.setIsHubPortDevice(false);
 		}
 		catch (PhidgetException PhEx) {
-			System.out.println("Creating " + label);
+			System.out.println("Creating " + deviceName);
 			System.err.println(PhEx.getDescription());
 		}
 
-		stpPhi.addAttachListener(new AttachListener()  {
+		addAttachListener();
+		super.addDettachListener(phi);
+		super.addErrorListener(phi);
+		addPositionChangeListener();
+	}
+
+	protected void addAttachListener() {
+		Stepper phi = (Stepper) super.phi; 
+		phi.addAttachListener(new AttachListener()  {
 			public void onAttach(AttachEvent ae) {
 				try {
 					//Set Acceleration
-					stpPhi.setAcceleration(2000);
+					phi.setAcceleration(2000);
 
 					//Set Velocity
-					stpPhi.setVelocityLimit(7000);
+					phi.setVelocityLimit(7000);
 
 					//Set Scaling Factor
-					stpPhi.setRescaleFactor(1/112.35);	//degree = step
+					phi.setRescaleFactor(1/112.35);	//degree = step
 
 					//Set Data Interval
-					stpPhi.setDataInterval(200);
+					phi.setDataInterval(200);
 
 					//Set Current Limit
-					stpPhi.setCurrentLimit(0.8);
+					phi.setCurrentLimit(0.8);
 
 					//Set Holding Current Limit
-					stpPhi.setHoldingCurrentLimit(0.5);
+					phi.setHoldingCurrentLimit(0.5);
 
 					//Engaging Servo-Stepper Motor
-					stpPhi.setEngaged(true);
-					
+					phi.setEngaged(true);
+
 					System.out.print(deviceName + " Attached @ ");
-					System.out.println("PC:" + stpPhi.getHubPort() + "/" + stpPhi.getChannel());
+					System.out.println("PC:" + phi.getHubPort() + "/" + phi.getChannel());
 
 					if (VintHUB.demo) {
-						System.out.println("\tAcceleration " + stpPhi.getAcceleration());
-						System.out.println("\tVelocity " + stpPhi.getVelocityLimit());
-						System.out.println("\tScale factor set to " + stpPhi.getRescaleFactor());
-						System.out.println("\tData Interval: " + stpPhi.getDataInterval() + "ms");
-						System.out.println("\tTravel Amperage: " + stpPhi.getCurrentLimit());
-						System.out.println("\tHolding Amperage: " + stpPhi.getHoldingCurrentLimit());
+						System.out.println("\tAcceleration " + phi.getAcceleration());
+						System.out.println("\tVelocity " + phi.getVelocityLimit());
+						System.out.println("\tScale factor set to " + phi.getRescaleFactor());
+						System.out.println("\tData Interval: " + phi.getDataInterval() + "ms");
+						System.out.println("\tTravel Amperage: " + phi.getCurrentLimit());
+						System.out.println("\tHolding Amperage: " + phi.getHoldingCurrentLimit());
 						System.out.println("\tStepper Engaged");
 					}
-					
-					VintHUB.AttachPhidget(stpPhi);
 				}
 				catch (PhidgetException PhEx) {
 					PhidgetErrHand.DisplayError(PhEx, "Attaching " + deviceName);
@@ -69,36 +74,25 @@ public class StepperMotor {
 				System.out.println(VintHUB.separator);
 			}
 		});
+	}
 
-		stpPhi.addDetachListener(new DetachListener() {
-			public void onDetach(DetachEvent de) {
-				System.out.println(deviceName + " Dettached");
-				System.out.println(VintHUB.separator);
-			}
-		});
-
-		stpPhi.addErrorListener(new ErrorListener() {
-			public void onError(ErrorEvent ee) {
-				System.out.print(deviceName + " ");
-				System.err.println("Error: " + ee.getDescription());
-				System.out.println(VintHUB.separator);
-			}
-		});
-
-		stpPhi.addPositionChangeListener(new StepperPositionChangeListener() {
+	protected void addPositionChangeListener() {
+		Stepper phi = (Stepper) super.phi; 
+		phi.addPositionChangeListener(new StepperPositionChangeListener() {
 			public void onPositionChange(StepperPositionChangeEvent pos) {
-				position = pos.getPosition();
+				position = Math.round(pos.getPosition());
 			}
 		});
 	}
 
 	public void MoveStepper(double target) {
+		Stepper phi = (Stepper) super.phi; 
 		target = Math.round(target);
 		try {
-			if (stpPhi.getAttached()) {
-				stpPhi.setTargetPosition(target);
+			if (phi.getAttached()) {
+				phi.setTargetPosition(target);
 				try {
-					while (stpPhi.getIsMoving()) {
+					while (phi.getIsMoving()) {
 						Thread.sleep(500);
 					}
 				} catch (InterruptedException IE) {
@@ -113,11 +107,12 @@ public class StepperMotor {
 	}
 
 	public void setSTPControlModeRUN() throws PhidgetException {
-		stpPhi.setControlMode(StepperControlMode.RUN);
+		Stepper phi = (Stepper) super.phi;
+		phi.setControlMode(StepperControlMode.RUN);
 	}
 
 	public void setSTPControlModeSTEP() throws PhidgetException {
-		stpPhi.setControlMode(StepperControlMode.STEP);
+		Stepper phi = (Stepper) super.phi;
+		phi.setControlMode(StepperControlMode.STEP);
 	}
-
 }
