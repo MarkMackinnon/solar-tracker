@@ -1,5 +1,7 @@
 package phidgets;
-import com.phidget22.*;
+
+import com.phidget22.PhidgetException;
+import com.phidget22.VoltageRatioInput;
 
 /**
  * VRI = Voltage Ratio Input
@@ -31,9 +33,8 @@ abstract class VRISensor extends PhidgetDevice {
 	 * @return the current voltage ratio of the Phidget
 	 * @throws PhidgetException
 	 */
-	protected double getValue() throws PhidgetException {
+	public double getValue() throws PhidgetException {
 		VoltageRatioInput phi = (VoltageRatioInput) super.phi;
 		return phi.getVoltageRatio();
-	}
-	
+	}	
 }

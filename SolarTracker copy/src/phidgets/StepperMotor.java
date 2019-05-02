@@ -1,7 +1,8 @@
 package phidgets;
 
-import com.phidget22.*;
 import java.text.DecimalFormat;
+import com.phidget22.PhidgetException;
+import com.phidget22.Stepper;
 
 /**
  * Basic Stepper Phidget behaviour
@@ -21,7 +22,7 @@ public class StepperMotor extends PhidgetDevice {
 			System.out.println("Creating " + deviceName);
 			System.err.println(PhEx.getDescription());
 		}
-		
+
 		addAttachListener();
 		addDettachListener();
 		addErrorListener();
@@ -71,15 +72,16 @@ public class StepperMotor extends PhidgetDevice {
 	protected void disengageStepperMotor() {
 		Stepper phi = (Stepper) this.phi;
 		try {
-			phi.setEngaged(false);
-			System.out.println(deviceName + " dissengaged");
-			System.out.println(PhidgetHub.separator);
+			if (phi.getAttached()) {
+				phi.setEngaged(false);
+				System.out.println(deviceName + " dissengaged");
+				System.out.println(PhidgetHub.separator);
+			}
 		} catch (PhidgetException e) {
-			System.out.println(deviceName + " motor not attached when trying dissengage");
-			System.out.println("No error here...");
+			System.out.println(deviceName + ": error dissengaging stepper motor");
 		}
 	}
-	
+
 	/**
 	 * Disengages the stepper motor and closes the channel for the stepper Phidget
 	 */
@@ -92,5 +94,5 @@ public class StepperMotor extends PhidgetDevice {
 		System.out.println("PC:" + phi.getHubPort() + "/" + + phi.getChannel() + "\t(CLOSED)");
 		System.out.println(PhidgetHub.separator);
 	}
-		
+
 }

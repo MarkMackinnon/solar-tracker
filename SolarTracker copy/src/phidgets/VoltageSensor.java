@@ -1,7 +1,6 @@
 package phidgets;
 
 import java.text.DecimalFormat;
-
 import com.phidget22.PhidgetException;
 import com.phidget22.VoltageRatioInput;
 

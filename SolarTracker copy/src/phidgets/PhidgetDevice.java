@@ -1,5 +1,13 @@
 package phidgets;
-import com.phidget22.*;
+
+import com.phidget22.AttachEvent;
+import com.phidget22.AttachListener;
+import com.phidget22.DetachEvent;
+import com.phidget22.DetachListener;
+import com.phidget22.ErrorEvent;
+import com.phidget22.ErrorListener;
+import com.phidget22.Phidget;
+import com.phidget22.PhidgetException;
 
 /**
  * Phidgets sharing the same behaviors are extended from this class
@@ -22,8 +30,8 @@ abstract class PhidgetDevice {
 	 * Before a Phidget can attach, the channel for attachment must be "opened" - part of the Phidget methodology
 	 * @param channel
 	 */
-	public void OpenSetChannel(int channel) {
-		System.out.println("Opening Phidget channel (" + deviceName + ")");
+	public void openSetChannel(int channel) {
+		System.out.println("Opening comm channel (" + deviceName + ")");
 		try {
 			phi.setChannel(channel);
 			phi.open();	//hold channel open request on for attachment 

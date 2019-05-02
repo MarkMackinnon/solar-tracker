@@ -13,7 +13,8 @@ import com.phidget22.Stepper;
  */
 public class AzimuthStepperMotor extends StepperMotor {
 
-	int moveCounter = 0;	//used in the orientation process
+	private int moveCounter = 0;
+	private double azimuthPositionalOffset;
 
 	public AzimuthStepperMotor(PhidgetHub ph, int portNumber, String deviceName) {
 		super(ph, portNumber, deviceName);
@@ -30,7 +31,7 @@ public class AzimuthStepperMotor extends StepperMotor {
 	 * Configuration most suited to the following values.
 	 * 
 	 * 1 Full Rotation of Turning Table = 40441 units
-	 * 1 compass degree = 40441/360 = 112.37 units
+	 * 1 compass degree = 40441/360/12 = 112.37 units
 	 */
 	@Override
 	protected void addAttachListener() {
@@ -81,20 +82,7 @@ public class AzimuthStepperMotor extends StepperMotor {
 	}
 
 	/**
-	 * Once the magnet has been found the offset from a compass heading is known and implemented to the running of the system now.
-	 * 
-	 * Once this has been done a compass heading can be given to the system and it will rotate the solar panel to be in line with that compass bearing
-	 * @throws PhidgetException
-	 */
-	public void setCompassOffset() throws PhidgetException {
-		System.out.println(PhidgetHub.separator);
-		Stepper phi = (Stepper) this.phi;
-		phi.addPositionOffset(-position()+45);
-	}
-
-	/**
-	 * Rotates anti-clockwise to the maxAntiClwRotation steppers position and then round the other way from position 0, breaking if the magnet sensor passed state is true.
-	 * @param magSnsr : a MagneticSensor, whose value operates as a switch for this function.
+	 * @param magSnsr : a MagneticSensor that operates as a switch for this function.
 	 */
 	public void findMagnet(MagneticSensor magSnsr) {
 		try {
@@ -107,27 +95,31 @@ public class AzimuthStepperMotor extends StepperMotor {
 				System.out.println("Position = " + position());
 				System.out.println("Magnet Value = " + magSnsr.getValue());
 				System.out.println("Solar Panel bearing = 45degrees");
-				setCompassOffset();
+				
+				/*
+				 * When the magnet is found during the initial scan the solar panel is at 45 degrees.
+				 * After this position instructions are given in degrees and the formula applied to the movements
+				 */
+				azimuthPositionalOffset = position();
+				Stepper phi = (Stepper) this.phi;
+				phi.addPositionOffset(-azimuthPositionalOffset+45);	//negating the current position sets the position to 0. Adding 45 aligns it with the solar panels bearing.
 			} else {
+				System.out.println("\nMagnet Not Found in anti-clockwise sector");
 				System.out.println("Orientating the sytem has been unsuccessful");
-				System.out.println("The program has been terminated. Align the two white dots and"
-						+ "\n ensure the wires are not spiraled around the axis before re-running");
-				disengageStepperMotor();
+				System.out.println(PhidgetHub.separator);
 			}
 		} catch (PhidgetException PhEx) {
 			PhEx.getDescription();
 			PhEx.printStackTrace();
 		}
+		System.out.println(PhidgetHub.separator);
 	}
 
 
 	/**
-	 * Finds and stops above the magnet;
+	 * Rotates anti-clockwise in increments of 5degrees.
 	 * 
-	 * Whilst the magnet is not aligned with the sensor and the next position to be moved to is more than the lowest position for anti clockwise rotation.
-	 * Check the magnet sensors value at the next position.
-	 * 
-	 * Position increments are of 5 steps = degrees
+	 * Stopping above the magnet sensor or when the next position it will move to is more than 185 degrees less than the starting position
 	 * 
 	 * @param magSnsr : a MagneticSensor, whose value operates as a switch for this function.
 	 * @throws PhidgetException : when checking if a Phidget is attached
@@ -147,10 +139,6 @@ public class AzimuthStepperMotor extends StepperMotor {
 				System.out.println("\tMagnet v: " + magSnsr.getValue());
 				System.out.println("\tPosition: " + position() + "\n");
 			}
-		}
-		if (!magSnsr.getMagAligned()) {
-			System.out.println("\nMagnet Not Found in anti-clockwise sector");
-			System.out.println(PhidgetHub.separator);
 		}
 	}
 }

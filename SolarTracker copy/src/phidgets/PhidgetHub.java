@@ -1,23 +1,23 @@
 package phidgets;
 
 import java.util.ArrayList;
-import com.phidget22.*;
+import com.phidget22.PhidgetException;
 
 /**
  * Harbour to the Phidget devices.
- * 
+ *
  * Phidget attachment is checked here
  * Console detail seperation is captured here
- * 
+ *
  * @author Mark MacKinnon {mark1mackinnon@outlook.com}
  */
 public class PhidgetHub {
 
-	protected int phSN;	//Phidget Hub serial number
+	private int phSN;	//Phidget Hub serial number
 	protected ArrayList<PhidgetDevice> phidgetDevices = new ArrayList<PhidgetDevice>();	//Added to by Phidgets on instantiation of the PhidgetDevice
 	static String separator;
 	static boolean demo;
-	
+
 	public PhidgetHub(int DSN, boolean demo, String separator) {
 		this.phSN = DSN;
 		PhidgetHub.demo = demo;
@@ -31,7 +31,7 @@ public class PhidgetHub {
 	 * @return TRUE if every Phidget is attached
 	 * @return FALSE if not every Phidget is attached; after 5 attempts and 1.5 seconds (0.3seconds of buffer in between each scan).
 	 */
-	public boolean AllPhidgetsAttached() {
+	public boolean allPhidgetsAttached() {
 		ArrayList<PhidgetDevice> devicesNotAttached = new ArrayList<PhidgetDevice>();
 		int attempts = 0;
 
@@ -65,7 +65,7 @@ public class PhidgetHub {
 			if (demo) {
 				System.out.println("Phidgets created = " + phidgetDevices.size());
 				System.out.println("Phidgets attached = " + (phidgetDevices.size() - devicesNotAttached.size()));
-				System.out.println(separator);	
+				System.out.println(separator);
 			}
 			for (PhidgetDevice vd : devicesNotAttached) {
 				System.err.println(vd.deviceName + " NOT ATTACHED");
@@ -73,7 +73,7 @@ public class PhidgetHub {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Closes the channels of all the Phidgets connected to this hub
 	 */
@@ -88,5 +88,3 @@ public class PhidgetHub {
 		}
 	}
 }
-
-

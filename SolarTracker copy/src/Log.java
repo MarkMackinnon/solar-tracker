@@ -1,22 +1,27 @@
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  * 
- * A file is made when this class is instantiated. Requesting the atmospheric conditions and the capturing the time signature.
+ * A file and its writers are instantiated with this class.
  * 
- * File Name = getWeatherCondition() + getDate() + ".csv"
+ * The default file extension is a time stamp + ".csv"
  * 
- * CSV header is parsed from the calling routine in SolarTrackerMain. 
- *
+ * The default file path is folder where the program executes.
+ * 
  * @author Mark MacKinnon {mark1mackinnon@outlook.com}
  *
  */
 class Log {
 
 	private String fileTitle;
-	private String fileExt = ".csv";
+	private String fileExtension = ".csv";
 	
 	private File logFile;
 
@@ -24,6 +29,10 @@ class Log {
 	private static FileOutputStream fos;
 	private static OutputStreamWriter osw;
 
+	/**
+	 * instantiates the Log file with the title given and opens the writers for it.
+	 * @param fileTitle
+	 */
 	Log(String fileTitle) {
 		this.fileTitle = fileTitle;
 		
@@ -47,12 +56,12 @@ class Log {
 	}
 	
 	/**
-	 * creates the file name from the weather condition provided by the user, the date and the file extension.
+	 * Creates the file name, attaching whats passed to the class with a time stamp and the fileExt.
 	 * @return
 	 */
 	private String createLogFileName() {
 		String date = getDate();
-		return fileTitle + " " + date + fileExt;
+		return fileTitle + " " + date + fileExtension;
 	}
 	
 	/**
@@ -77,7 +86,7 @@ class Log {
 	}
 	
 	/**
-	 * The logs file writers are created here
+	 * The logs file writers are instantiated here
 	 * @param file
 	 * @throws FileNotFoundException
 	 */
