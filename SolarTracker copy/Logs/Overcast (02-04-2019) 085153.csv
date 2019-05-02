@@ -1,0 +1,16 @@
+Time, Panel Voltage, Light LUX, Bearing, Solar Azimuth, Offset, Zenith
+08:51:58,6,371,108,107.78,-0.22,20.14
+08:52:28,5.7,336,108,107.88,-0.12,20.21
+08:52:58,5.7,328,108,107.99,-0.01,20.29
+08:53:28,5.7,323,108,108.1,0.1,20.36
+08:53:58,5.7,311,108,108.2,0.2,20.44
+,,,,,,
+First reading must be an anomoly judging by the Lux readings,,,,,,
+30 seconds intervals,,,,,,
+Panel Voltage dropped as the sun cam around. Weird,,,,,,
+Offset seemed to not do any damage,,,,,,
+Sun quite low but hidden behind clouds.,,,,,,
+Light between 311 and 371,,,,,,
+,Panel voltage around 5.7,,,,,
+,,,,,,
+02:30,,70,,0.42,,0.3
