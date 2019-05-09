@@ -1,0 +1,12 @@
+//Longitude
+-1.90262
+//Latitude
+50.7506208
+//Daylight Savings Time (boolean)
+true
+//Log duration (minutes)
+60
+//Log interval (seconds)
+10
+//track? (boolean)
+false
